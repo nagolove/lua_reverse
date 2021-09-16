@@ -1,5 +1,6 @@
-local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local load = _tl_compat and _tl_compat.load or load; local string = _tl_compat and _tl_compat.string or string
+local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local load = _tl_compat and _tl_compat.load or load; local math = _tl_compat and _tl_compat.math or math; local string = _tl_compat and _tl_compat.string or string
 
+local ansicolors = require("ansicolors2")
 local hx = require('hex')
 local data, err
 data, err = hx.encode("edfwfef123")
@@ -30,22 +31,8 @@ end
 print('fromhex', fromhex("abdce"))
 print('tohex', tohex("12525125"))
 
-
-
-
-
-c = 0
-local c2 = 0
-
-
-
-function returnCouple()
-
-
-   return 1, 1
-end
-
 local sources = {
+
    {
       [[
         local experimentObject = function()
@@ -61,6 +48,7 @@ local sources = {
    {
       [[
         local experimentObject = function()
+        return 1
         end
         ]],
 
@@ -69,11 +57,193 @@ local sources = {
         end
         ]],
    },
+   {
+      [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+      [[
+        local experimentObject = function()
+        end
+        ]],
+   },
+   {
+      [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+      [[
+        local experimentObject = function()
+        end
+        ]],
+   },
+   {
+      [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+      [[
+        local experimentObject = function()
+        end
+        ]],
+   },
+   {
+      [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+      [[
+        local experimentObject = function()
+        end
+        ]],
+   },
+   {
+      [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+      [[
+        local experimentObject = function()
+        end
+        ]],
+   },
+   {
+      [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+      [[
+        local experimentObject = function()
+        end
+        ]],
+   },
+   {
+      [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+      [[
+        local experimentObject = function()
+        end
+        ]],
+   },
+   {
+      [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+      [[
+        local experimentObject = function()
+        end
+        ]],
+   },
+   {
+      [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+      [[
+        local experimentObject = function()
+        end
+        ]],
+   },
+   {
+      [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+      [[
+        local experimentObject = function()
+        end
+        ]],
+   },
+   {
+      [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+      [[
+        local experimentObject = function()
+        end
+        ]],
+   },
+   {
+      [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+      [[
+        local experimentObject = function()
+        end
+        ]],
+   },
+
 }
+
+local function diff(a, b)
+   local ahex, bhex = tohex(a), tohex(b)
+   local longest, shortest
+   if #a > #b then
+      longest = a
+      shortest = b
+   else
+      longest = b
+      shortest = a
+   end
+
+
+   local i = 1
+   local out = ""
+   for char1 in string.gmatch(shortest, '.') do
+      local char2 = string.sub(longest, i, i + 1)
+      print('char1', #char1, '|', tohex(char1), '|')
+      print('char2', #char2, '|', tohex(char2), '|')
+      local b1, b2 = string.byte(char1, 1), string.byte(char2, 1)
+      local d = math.ceil(math.abs(b2 - b1))
+      if char1 == char2 then
+         print('1')
+         out = out .. ansicolors.ansicolors('%{white}' .. char1 .. '%{reset}')
+      else
+
+
+         local s = tostring(d)
+
+      end
+      i = i + 1
+   end
+   return out
+end
 
 for _, src in ipairs(sources) do
    local code1 = load(src[1])
-   local code2 = load(src[1])
+   local code2 = load(src[2])
+   local code1dump = string.dump(code1)
+   local code2dump = string.dump(code2)
+   print(diff(code1dump, code2dump))
 end
 
 

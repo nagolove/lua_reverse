@@ -1,5 +1,6 @@
 #!/usr/bin/env lua5.1
 
+local ansicolors = require "ansicolors2"
 local hx = require 'hex'
 local data, err: string, boolean
 data, err = hx.encode("edfwfef123")
@@ -30,22 +31,8 @@ end
 print('fromhex', fromhex("abdce"))
 print('tohex', tohex("12525125"))
 
---local a: any
---local b: {any}
---local c: {any:any}
-
-global c: integer = 0
-local c2: integer = 0
-
---local type Func = function(string): number|string
-
-function returnCouple(): (number, number)
-    -- нет возврата из функцци, но нет предупреждения об ошибке
-    --return "s"
-    return 1, 1
-end
-
 local sources = {
+    -- {{{
     {
         [[
         local experimentObject = function()
@@ -61,6 +48,7 @@ local sources = {
     {
         [[
         local experimentObject = function()
+        return 1
         end
         ]],
 
@@ -69,11 +57,193 @@ local sources = {
         end
         ]],
     },
+    {
+        [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+        [[
+        local experimentObject = function()
+        end
+        ]],
+    },
+    {
+        [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+        [[
+        local experimentObject = function()
+        end
+        ]],
+    },
+    {
+        [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+        [[
+        local experimentObject = function()
+        end
+        ]],
+    },
+    {
+        [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+        [[
+        local experimentObject = function()
+        end
+        ]],
+    },
+    {
+        [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+        [[
+        local experimentObject = function()
+        end
+        ]],
+    },
+    {
+        [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+        [[
+        local experimentObject = function()
+        end
+        ]],
+    },
+    {
+        [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+        [[
+        local experimentObject = function()
+        end
+        ]],
+    },
+    {
+        [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+        [[
+        local experimentObject = function()
+        end
+        ]],
+    },
+    {
+        [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+        [[
+        local experimentObject = function()
+        end
+        ]],
+    },
+    {
+        [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+        [[
+        local experimentObject = function()
+        end
+        ]],
+    },
+    {
+        [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+        [[
+        local experimentObject = function()
+        end
+        ]],
+    },
+    {
+        [[
+        local experimentObject = function()
+        return 1
+        end
+        ]],
+
+        [[
+        local experimentObject = function()
+        end
+        ]],
+    },
+    -- }}}
 }
+
+local function diff(a: string, b: string): string
+    local ahex, bhex = tohex(a), tohex(b)
+    local longest, shortest: string, string
+    if #a > #b then
+        longest = a
+        shortest = b
+    else
+        longest = b
+        shortest = a
+    end
+    --print('ahex, #ahex', #ahex, ahex)
+    --print('bhex, #bhex', #bhex, bhex)
+    local i = 1
+    local out = ""
+    for char1 in string.gmatch(shortest, '.') do
+        local char2 = string.sub(longest, i, i + 1)
+        print('char1', #char1, '|', tohex(char1), '|')
+        print('char2', #char2, '|', tohex(char2), '|')
+        local b1, b2 = string.byte(char1, 1), string.byte(char2, 1)
+        local d: integer = math.ceil(math.abs(b2 - b1))
+        if char1 == char2 then
+            print('1')
+            out = out .. ansicolors.ansicolors('%{white}' .. char1 .. '%{reset}')
+        else
+            --print('2')
+            --print('should be' .. ansicolors.ansicolors('%{red}red%{reset}') .. ' default')
+            local s = tostring(d)
+            --out = out .. ansicolors.ansicolors('%{red}' .. s .. '%{reset}' ) as string
+        end
+        i = i + 1
+    end
+    return out
+end
 
 for _, src in ipairs(sources) do
     local code1 = load(src[1]) as function()
-    local code2 = load(src[1]) as function()
+    local code2 = load(src[2]) as function()
+    local code1dump = string.dump(code1)
+    local code2dump = string.dump(code2)
+    print(diff(code1dump, code2dump))
 end
 
 --local ok, errstr = pcall(function()

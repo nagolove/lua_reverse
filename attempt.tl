@@ -1,6 +1,8 @@
 #!/usr/bin/env lua5.1
 
+local inspect = require 'inspect'
 local ansicolors = require "ansicolors2"
+print('ansicolors', inspect(ansicolors))
 local hx = require 'hex'
 local data, err: string, boolean
 data, err = hx.encode("edfwfef123")
@@ -31,6 +33,9 @@ end
 print('fromhex', fromhex("abdce"))
 print('tohex', tohex("12525125"))
 
+--[[
+Возможно лучшей идеей будет сделать программу интерактивного режима.
+--]]
 local sources = {
     -- {{{
     {
@@ -57,153 +62,24 @@ local sources = {
         end
         ]],
     },
-    {
-        [[
-        local experimentObject = function()
-        return 1
-        end
-        ]],
-
-        [[
-        local experimentObject = function()
-        end
-        ]],
-    },
-    {
-        [[
-        local experimentObject = function()
-        return 1
-        end
-        ]],
-
-        [[
-        local experimentObject = function()
-        end
-        ]],
-    },
-    {
-        [[
-        local experimentObject = function()
-        return 1
-        end
-        ]],
-
-        [[
-        local experimentObject = function()
-        end
-        ]],
-    },
-    {
-        [[
-        local experimentObject = function()
-        return 1
-        end
-        ]],
-
-        [[
-        local experimentObject = function()
-        end
-        ]],
-    },
-    {
-        [[
-        local experimentObject = function()
-        return 1
-        end
-        ]],
-
-        [[
-        local experimentObject = function()
-        end
-        ]],
-    },
-    {
-        [[
-        local experimentObject = function()
-        return 1
-        end
-        ]],
-
-        [[
-        local experimentObject = function()
-        end
-        ]],
-    },
-    {
-        [[
-        local experimentObject = function()
-        return 1
-        end
-        ]],
-
-        [[
-        local experimentObject = function()
-        end
-        ]],
-    },
-    {
-        [[
-        local experimentObject = function()
-        return 1
-        end
-        ]],
-
-        [[
-        local experimentObject = function()
-        end
-        ]],
-    },
-    {
-        [[
-        local experimentObject = function()
-        return 1
-        end
-        ]],
-
-        [[
-        local experimentObject = function()
-        end
-        ]],
-    },
-    {
-        [[
-        local experimentObject = function()
-        return 1
-        end
-        ]],
-
-        [[
-        local experimentObject = function()
-        end
-        ]],
-    },
-    {
-        [[
-        local experimentObject = function()
-        return 1
-        end
-        ]],
-
-        [[
-        local experimentObject = function()
-        end
-        ]],
-    },
-    {
-        [[
-        local experimentObject = function()
-        return 1
-        end
-        ]],
-
-        [[
-        local experimentObject = function()
-        end
-        ]],
-    },
     -- }}}
 }
 
+local function tobin(x: string): string
+	local t = {}
+	for i=0, #x - 1 do
+		local c = x:byte(i + 1)
+		for j=0, 7 do
+			t[i *8+j+1] = (c & 0x80) ~= 0 and "1" or "0"
+			c = c << 1
+		end
+	end
+	return table.concat(t)
+end
+
+local colorize = ansicolors.ansicolors
+
+-- Возвращает строку с отчетом сравнив две строчки байткода
 local function diff(a: string, b: string): string
     local ahex, bhex = tohex(a), tohex(b)
     local longest, shortest: string, string
@@ -218,32 +94,45 @@ local function diff(a: string, b: string): string
     --print('bhex, #bhex', #bhex, bhex)
     local i = 1
     local out = ""
+    longest = tobin(longest)
+    shortest = tobin(longest)
+    --out = colorize("%{red}" .. longest .. "\n%{white}" .. shortest .. "\n")
     for char1 in string.gmatch(shortest, '.') do
         local char2 = string.sub(longest, i, i + 1)
-        print('char1', #char1, '|', tohex(char1), '|')
-        print('char2', #char2, '|', tohex(char2), '|')
-        local b1, b2 = string.byte(char1, 1), string.byte(char2, 1)
-        local d: integer = math.ceil(math.abs(b2 - b1))
+        --print('char1', #char1, '|', tohex(char1), '|')
+        --print('char2', #char2, '|', tohex(char2), '|')
+        --local b1, b2 = string.byte(char1, 1), string.byte(char2, 1)
+        --local d: integer = math.ceil(math.abs(b2 - b1))
         if char1 == char2 then
-            print('1')
-            out = out .. ansicolors.ansicolors('%{white}' .. char1 .. '%{reset}')
+            --print('1')
+            --out = out .. colorize('%{white}' .. char1 .. '%{reset}')
         else
             --print('2')
             --print('should be' .. ansicolors.ansicolors('%{red}red%{reset}') .. ' default')
-            local s = tostring(d)
-            --out = out .. ansicolors.ansicolors('%{red}' .. s .. '%{reset}' ) as string
+            --local s = tostring(d)
+            --out = out .. colorize('%{red}' .. char1 .. '%{reset}' ) as string
         end
         i = i + 1
     end
+    --]]
     return out
 end
 
-for _, src in ipairs(sources) do
+local function analyze(src: {string})
     local code1 = load(src[1]) as function()
     local code2 = load(src[2]) as function()
     local code1dump = string.dump(code1)
     local code2dump = string.dump(code2)
-    print(diff(code1dump, code2dump))
+    print(colorize("%{green}source one:\n%{white}" .. src[1]))
+    print(colorize("%{green}bytecode (hex):\n%{white}" .. tohex(src[1])))
+    print(colorize("%{green}source two:\n%{white}" .. src[2]))
+    print(colorize("%{green}bytecode (hex):\n%{white}" .. tohex(src[2])))
+    print(colorize("%{green}diff:\n%{white}" .. diff(code1dump, code2dump)))
+    print(colorize("%{magenta}" .. string.rep("-", 120)))
+end
+
+for _, src in ipairs(sources) do
+    analyze(src)
 end
 
 --local ok, errstr = pcall(function()
